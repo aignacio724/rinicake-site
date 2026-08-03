@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpRigh, Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
 import { CREATOR, NAV } from "../content-data/content";
 import { scrollToId } from "../lib/scrollTo";
 
@@ -14,7 +14,7 @@ return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
         <button
-          onClick={() => go("top")}
+          onClick={() => goTo("top")}
           className="font-display text-2xl tracking-tight text-ink transition hover:text-berry focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-berry focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           {CREATOR.name}
@@ -24,7 +24,7 @@ return (
           {NAV.map((item) => (
             <button
               key={item.id}
-              onClick={() => go(item.id)}
+              onClick={() => goTo(item.id)}
               className="text-sm text-muted transition hover:text-berry focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-berry focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               {item.label}
@@ -56,7 +56,7 @@ return (
             {NAV.map((item) => (
               <button
                 key={item.id}
-                onClick={() => go(item.id)}
+                onClick={() => goTo(item.id)}
                 className="py-2.5 text-left text-ink"
               >
                 {item.label}

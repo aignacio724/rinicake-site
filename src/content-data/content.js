@@ -1,7 +1,10 @@
-import { Instagram, Facebook, Threads, TikTok, Icon } from "lucide-react"
+import Instagram from "../assets/icons/instagram.svg?react"
+import Facebook  from "../assets/icons/facebook.svg?react"
+import Threads   from "../assets/icons/threads.svg?react"
+import TikTok    from "../assets/icons/tiktok.svg?react"
 
 export const CREATOR = {
-    name: "Rini",
+    name: "Rinicake",
     tagline: "Illustrator & art toy designer",
     blurb: "Creator of Dollypaca the Strawberry Alpaca",
     etsyUrl: "https://www.etsy.com/shop/rinicakeart",
