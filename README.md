@@ -1,6 +1,6 @@
 # Rinicake
 
-Portfolio site for **Rinicak**.
+Portfolio site for **Rinicake**.
 
 A single-page site built to show the work first: a gallery of pieces, a link out to the Etsy shop, a schedule of upcoming in-person shows, and a contact form for commissions and wholesale inquiries.
 
