@@ -1,45 +1,53 @@
-import { ArrowUpRight, Heart } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { CREATOR } from "../content-data/content";
 import { scrollToId } from "../lib/scrollTo";
+import { btn } from "../lib/styles";
 import Tile from "./Tile";
-
 
 export default function Hero() {
   return (
-    <section id="top" className="mx-auto max-w-6xl px-5 pb-16 pt-14 md:pt-20">
-      <div className="grid items-center gap-10 md:grid-cols-2">
-        <div>
-          <p className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-berry">
-            <Heart size={13} className="fill-berry" /> {CREATOR.tagline}
-          </p>
-          <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight text-ink md:text-7xl">
-            {CREATOR.name}
-          </h1>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-muted">
-            {CREATOR.blurb}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              onClick={() => scrollToId("work")}
-              className="rounded-full border border-ink/15 px-6 py-2.5 text-sm font-medium text-ink transition hover:border-ink hover:bg-ink hover:text-paper"
-            >
-              View the work
-            </button>
-            <a
-              href={CREATOR.etsyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-berry px-6 py-2.5 text-sm font-medium text-white transition hover:bg-berry-dark"
-            >
-              Shop on Etsy <ArrowUpRight size={16} />
-            </a>
+    <header
+      id="top"
+      className="mx-auto grid max-w-[1440px] items-center gap-14 px-[6vw] pt-[92px] pb-[78px] min-[900px]:grid-cols-[1.15fr_0.85fr]"
+    >
+      <div>
+        {CREATOR.commissionsOpen && (
+          <div className="mb-[26px] inline-flex items-center gap-[9px] rounded-full bg-panel px-[15px] py-[7px] pl-3 font-ui text-[13px] font-semibold text-berry">
+            <span className="h-2 w-2 rounded-full bg-[#7c9a5a]" />
+            {CREATOR.commissionsNote}
           </div>
-        </div>
+        )}
 
-        <div className="mx-auto w-full max-w-sm md:max-w-none">
-          <Tile title="Featured work" src="" ratio={4 / 5} />
+        <h1 className="mb-6 font-display text-[clamp(44px,6.2vw,84px)] leading-[0.98] font-bold tracking-[-0.03em] text-ink">
+          {CREATOR.headline.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </h1>
+
+        <p className="mb-[34px] max-w-[50ch] text-[18.5px] leading-[1.65] text-berry text-pretty">
+          {CREATOR.lede}
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+          <button onClick={() => scrollToId("work")} className={btn()}>
+            See the work
+          </button>
+          <a
+            href={CREATOR.etsyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={btn({ variant: "ghost" })}
+          >
+            Shop on Etsy <ArrowUpRight size={16} />
+          </a>
         </div>
       </div>
-    </section>
+
+      <div className="rounded-[30px] bg-panel p-4 shadow-float">
+        <Tile label="portrait / studio photo" ratio="4 / 5" radius={18} />
+      </div>
+    </header>
   );
 }
