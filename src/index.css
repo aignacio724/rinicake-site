@@ -1,27 +1,76 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #FFE0EE; /* warm ivory page background */
-  --color-panel: #ffffff; /* cards / alternating sections */
-  --color-ink: #241c1a; /* deep warm near-black (headings + body) */
-  --color-muted: #8a7d75; /* warm gray-brown for secondary text */
-  --color-line: #e9e0d6; /* hairline borders */
+  /* Surfaces */
+  --color-paper: #fce7ef; /* blush page background */
+  --color-panel: #ffffff; /* cards, forms, nav */
+  --color-line: rgb(42 18 24 / 0.12); /* hairline borders */
 
-  --color-berry: #c1355c; /* primary accent (raspberry) */
-  --color-berry-dark: #a12747; /* accent hover */
-  --color-berry-soft: #fbeef1; /* pale blush tint */
+  /* Text */
+  --color-ink: #2a1218; /* headings and body */
+  --color-muted: #6f5560; /* secondary text */
+  --color-meta: #9a7e8a; /* tertiary text and mono labels */
+  --color-slot: #c78ea3; /* label on an empty image slot */
 
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+  /* Accent */
+  --color-berry: #bf2b58;
+  --color-berry-dark: #96204a;
+  --color-berry-soft: #fdeef4;
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-ui: Quicksand, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Nunito, ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 26px;
+
+  --shadow-card: 0 4px 14px -11px rgb(42 18 24 / 0.35);
+  --shadow-float: 0 20px 44px -26px rgb(42 18 24 / 0.35);
+  --shadow-lift: 0 26px 44px -28px rgb(42 18 24 / 0.5);
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
   }
+  img {
+    display: block;
+    max-width: 100%;
+  }
   ::selection {
-    background: #f7cdd8;
-    color: #241c1a;
+    background: var(--color-berry);
+    color: #fff;
+  }
+}
+
+/* Hatched fill standing in for artwork that isn't shot yet. */
+@utility hatch {
+  background-color: var(--color-berry-soft);
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(42 18 24 / 0.07) 0 1px,
+    transparent 1px 9px
+  );
+}
+
+/* Six-column mosaic. Tiles set their own `grid-column: span N` inline, which
+   an inline style makes impossible to override with a utility — so the
+   responsive collapse to two columns and then one lives here. */
+@utility mosaic {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(6, 1fr);
+  /* Tiles in a row have different aspect ratios; let each card hug its own
+     content rather than stretching to the tallest and trailing dead space. */
+  align-items: start;
+
+  @media (width < 900px) {
+    grid-template-columns: repeat(2, 1fr);
+    & > * {
+      grid-column: span 1 !important;
+    }
+  }
+  @media (width < 560px) {
+    grid-template-columns: 1fr;
   }
 }
 
