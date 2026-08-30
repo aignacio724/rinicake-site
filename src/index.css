@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #faf6ef; /* warm ivory page background */
+  --color-paper: #FFE0EE; /* warm ivory page background */
   --color-panel: #ffffff; /* cards / alternating sections */
   --color-ink: #241c1a; /* deep warm near-black (headings + body) */
   --color-muted: #8a7d75; /* warm gray-brown for secondary text */

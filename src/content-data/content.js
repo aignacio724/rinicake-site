@@ -8,7 +8,7 @@ export const CREATOR = {
     tagline: "Illustrator & art toy designer",
     blurb: "Creator of Dollypaca the Strawberry Alpaca",
     etsyUrl: "https://www.etsy.com/shop/rinicakeart",
-    web3formsKey: "9fc44995-7c5e-431a-b1cf-7573ddb19119",
+    web3formsKey: "22d571d3-f05b-4f5e-ae54-c3a3c2ed8875",
 };
 
 export const SOCIALS = [
