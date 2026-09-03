@@ -7,7 +7,7 @@ export default function About() {
   return (
     <Section id="about">
       <div className="grid items-center gap-[clamp(28px,4vw,56px)] rounded-[32px] bg-panel p-[clamp(28px,4vw,56px)] shadow-card min-[900px]:grid-cols-[0.8fr_1.2fr]">
-        <Tile label={ABOUT.slot} ratio="1 / 1" radius={24} />
+        <Tile image={ABOUT.image} alt={ABOUT.alt} label={ABOUT.slot} ratio="1 / 1" radius={24} />
 
         <div>
           <h2 className="mb-5 font-display text-[clamp(28px,3.4vw,42px)] font-bold tracking-[-0.02em]">

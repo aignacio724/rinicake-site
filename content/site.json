@@ -1,0 +1,92 @@
+{
+  "creator": {
+    "name": "Rinicake",
+    "tagline": "Illustrator & art toy designer",
+    "blurb": "Creator of Dollypaca the Strawberry Alpaca",
+    "etsyUrl": "https://www.etsy.com/shop/rinicakeart",
+    "web3formsKey": "22d571d3-f05b-4f5e-ae54-c3a3c2ed8875",
+    "headline": [
+      "Illustrator &",
+      "art toy",
+      "designer."
+    ],
+    "lede": "Creator of Dollypaca the Strawberry Alpaca. Everything below is either finished, in the shop, or on its way there.",
+    "commissionsOpen": true,
+    "commissionsNote": "Taking commissions",
+    "image": "",
+    "imageAlt": ""
+  },
+  "socials": [
+    {
+      "label": "Instagram",
+      "href": "https://www.instagram.com/rinicakez",
+      "icon": "instagram"
+    },
+    {
+      "label": "Facebook",
+      "href": "https://www.facebook.com/rinicakez",
+      "icon": "facebook"
+    },
+    {
+      "label": "Threads",
+      "href": "https://www.threads.com/@rinicakez",
+      "icon": "threads"
+    },
+    {
+      "label": "TikTok",
+      "href": "https://www.tiktok.com/@rinicakez",
+      "icon": "tiktok"
+    }
+  ],
+  "nav": [
+    {
+      "id": "work",
+      "label": "Work"
+    },
+    {
+      "id": "upcoming",
+      "label": "Upcoming"
+    },
+    {
+      "id": "events",
+      "label": "Events"
+    },
+    {
+      "id": "about",
+      "label": "About"
+    },
+    {
+      "id": "contact",
+      "label": "Contact"
+    }
+  ],
+  "contactTopics": [
+    "Commission inquiry",
+    "Order question",
+    "Business / wholesale",
+    "Just saying hi",
+    "Something else"
+  ],
+  "contactNotes": [
+    "Replies within 2—3 days",
+    "Commission slots: 2 open"
+  ],
+  "categories": [
+    "All",
+    "Illustration",
+    "Art toys",
+    "Prints",
+    "Stickers",
+    "Commissions"
+  ],
+  "about": {
+    "slot": "studio / desk photo",
+    "image": "",
+    "alt": "",
+    "paragraphs": [
+      "Rinicake is an illustrator and art toy designer, and the creator of Dollypaca the Strawberry Alpaca.",
+      "Replace this paragraph with the longer version — how you work, what you make, and what you are after. Commissions and wholesale inquiries both go through the form below."
+    ],
+    "stats": []
+  }
+}

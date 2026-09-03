@@ -16,7 +16,7 @@ export default function Upcoming() {
             key={u.title}
             className="group flex flex-col rounded-card bg-panel p-3.5 shadow-card transition duration-200 hover:-translate-y-1.5 hover:shadow-lift"
           >
-            <Tile src={u.src} label={u.slot} ratio="16 / 11">
+            <Tile image={u.image} alt={u.alt} label={u.slot} ratio="16 / 11">
               <span className="absolute top-3.5 left-3.5 inline-flex items-center gap-[7px] rounded-full bg-berry px-3 py-1.5 font-ui text-[11.5px] font-semibold text-white">
                 <span
                   className="h-1.5 w-1.5 rounded-full"

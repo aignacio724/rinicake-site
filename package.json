@@ -4,8 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run images && vite",
+    "build": "npm run images && vite build",
+    "images": "node scripts/build-images.mjs",
+    "new:piece": "node scripts/new-content.mjs piece",
+    "new:event": "node scripts/new-content.mjs event",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -26,6 +29,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
+    "sharp": "^0.35.4",
     "vite": "^8.2.0",
     "vite-plugin-svgr": "^5.2.0"
   }

@@ -46,7 +46,13 @@ export default function Hero() {
       </div>
 
       <div className="rounded-[30px] bg-panel p-4 shadow-float">
-        <Tile label="portrait / studio photo" ratio="4 / 5" radius={18} />
+        <Tile
+          image={CREATOR.image}
+          alt={CREATOR.imageAlt}
+          label="portrait / studio photo"
+          ratio="4 / 5"
+          radius={18}
+        />
       </div>
     </header>
   );

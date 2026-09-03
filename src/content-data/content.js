@@ -1,115 +1,182 @@
-import Instagram from "../assets/icons/instagram.svg?react"
-import Facebook  from "../assets/icons/facebook.svg?react"
-import Threads   from "../assets/icons/threads.svg?react"
-import TikTok    from "../assets/icons/tiktok.svg?react"
+/**
+ * Site content loader.
+ *
+ * The content itself lives as JSON under `content/` at the repo root — one file
+ * per piece, prototype and event, plus `content/site.json` for the singletons.
+ * That's what the admin UI writes and what you edit by hand.
+ *
+ * This module is the adapter between those files and the components: it globs
+ * them, sorts them, resolves the pieces that can't be expressed in JSON (social
+ * icons are React components), derives what shouldn't be typed by hand (event
+ * dates), and re-exports the same names it always has. Components import from
+ * here and don't know or care where the data came from.
+ */
+
+import Instagram from "../assets/icons/instagram.svg?react";
+import Facebook from "../assets/icons/facebook.svg?react";
+import Threads from "../assets/icons/threads.svg?react";
+import TikTok from "../assets/icons/tiktok.svg?react";
+
+import site from "../../content/site.json";
+import images from "./images.json";
+
+/** JSON can only hold the icon's name; map it back to the imported component. */
+const ICONS = {
+  instagram: Instagram,
+  facebook: Facebook,
+  threads: Threads,
+  tiktok: TikTok,
+};
+
+/**
+ * Resolve a content record's `image` filename against the manifest that
+ * scripts/build-images.mjs produces. Returns null when the piece has no
+ * artwork yet, which is what makes a tile fall back to its labelled
+ * placeholder — so layout work can still happen before the photos exist.
+ */
+function resolveImage(file, sizes) {
+  if (!file) return null;
+  // The manifest is keyed by bare filename, but the admin UI writes whatever
+  // its `public_folder` is set to ("/images/originals/foo.jpg"). Take the last
+  // segment so either form resolves.
+  const meta = images[file.split("/").pop()];
+  return meta ? { ...meta, sizes } : null;
+}
+
+/**
+ * How wide a mosaic tile should be, in columns of six. Landscape work earns
+ * more room than portrait work. Authored `span` always wins, so a deliberate
+ * layout is still possible.
+ */
+function spanFor(ratio) {
+  if (ratio >= 1.5) return 4;
+  if (ratio >= 1.0) return 3;
+  return 2;
+}
+
+/** A mosaic tile is `span/6` of a 88vw content column, one or two up on small screens. */
+function sizesFor(span) {
+  return `(max-width: 560px) 100vw, (max-width: 900px) 50vw, ${Math.round((span / 6) * 88)}vw`;
+}
+
+/**
+ * Fill in the layout fields a piece shouldn't have to declare. With artwork
+ * present, `ratio` comes from the file's real pixel dimensions and `span` from
+ * its shape; without it, both fall back to whatever the JSON authored.
+ */
+function resolvePiece(item) {
+  const meta = item.image ? images[item.image] : null;
+  const ratio = item.ratio ?? (meta ? meta.ratio : "4 / 3");
+  const span = item.span ?? (meta ? spanFor(meta.ratio) : 3);
+  return { ...item, ratio, span, image: resolveImage(item.image, sizesFor(span)) };
+}
+
+/**
+ * Folder collections are ordered by their `order` field, with the filename as a
+ * tie-break so the result is always deterministic. Reordering the mosaic means
+ * changing a number, which works from the admin UI as well as an editor.
+ */
+function collection(modules) {
+  return Object.entries(modules)
+    .sort(
+      ([pathA, a], [pathB, b]) =>
+        (a.order ?? 0) - (b.order ?? 0) || pathA.localeCompare(pathB),
+    )
+    .map(([, item]) => item);
+}
+
+// ---------------------------------------------------------------- singletons
 
 export const CREATOR = {
-    name: "Rinicake",
-    tagline: "Illustrator & art toy designer",
-    blurb: "Creator of Dollypaca the Strawberry Alpaca",
-    etsyUrl: "https://www.etsy.com/shop/rinicakeart",
-    web3formsKey: "22d571d3-f05b-4f5e-ae54-c3a3c2ed8875",
-
-    // Hero headline — one array entry per rendered line.
-    headline: ["Illustrator &", "art toy", "designer."],
-    lede: "Creator of Dollypaca the Strawberry Alpaca. Everything below is either finished, in the shop, or on its way there.",
-
-    // The pill above the headline. Set commissionsOpen: false to hide it.
-    commissionsOpen: true,
-    commissionsNote: "Taking commissions",
+  ...site.creator,
+  // The hero sits beside the headline at roughly 40% of the page on desktop.
+  image: resolveImage(site.creator.image, "(max-width: 900px) 92vw, 38vw"),
 };
 
-export const SOCIALS = [
-    { label: "Instagram", href: "https://www.instagram.com/rinicakez", Icon: Instagram },
-    { label: "Facebook", href: "https://www.facebook.com/rinicakez", Icon: Facebook },
-    { label: "Threads", href: "https://www.threads.com/@rinicakez", Icon: Threads },
-    { label: "TikTok", href: "https://www.tiktok.com/@rinicakez", Icon: TikTok}
-]
+export const SOCIALS = site.socials.map(({ label, href, icon }) => ({
+  label,
+  href,
+  Icon: ICONS[icon],
+}));
 
-export const CONTACT_TOPICS = [
-  "Commission inquiry",
-  "Order question",
-  "Business / wholesale",
-  "Just saying hi",
-  "Something else",
-];
+export const NAV = site.nav;
+export const CONTACT_TOPICS = site.contactTopics;
+export const CONTACT_NOTES = site.contactNotes;
+export const CATEGORIES = site.categories;
 
-// Shown beside the contact form. Placeholder copy — edit or empty the array.
-export const CONTACT_NOTES = [
-  "Replies within 2—3 days",
-  "Commission slots: 2 open",
-];
-
-export const NAV = [
-  { id: "work", label: "Work" },
-  { id: "upcoming", label: "Upcoming" },
-  { id: "events", label: "Events" },
-  { id: "about", label: "About" },
-  { id: "contact", label: "Contact" },
-];
-
-// Home-page gallery, laid out on a six-column mosaic.
-//   src   — image URL or local import. Leave it empty and the tile renders a
-//           labelled placeholder instead, so layout work can happen first.
-//   slot  — what belongs in that image area; the placeholder's label.
-//   span  — how many of the six columns the tile occupies.
-//   ratio — width / height of the image area.
-//   note  — a sentence about the piece. Omit and the line isn't rendered.
-//   tags  — medium / availability pills. Omit for none.
-export const WORK = [
-  { title: "Piece one",   year: "2026", src: "", slot: "wide hero piece",   span: 4, ratio: "16 / 10", note: "", tags: ["Illustration"] },
-  { title: "Piece two",   year: "2026", src: "", slot: "portrait detail",   span: 2, ratio: "3 / 4",   note: "", tags: ["Art toy"] },
-  { title: "Piece three", year: "2026", src: "", slot: "portrait detail",   span: 2, ratio: "3 / 4",   note: "", tags: ["Illustration"] },
-  { title: "Piece four",  year: "2026", src: "", slot: "wide flatlay",      span: 4, ratio: "16 / 10", note: "", tags: ["Art toy", "In shop"] },
-  { title: "Piece five",  year: "2025", src: "", slot: "product photo",     span: 3, ratio: "4 / 3",   note: "", tags: ["Print"] },
-  { title: "Piece six",   year: "2025", src: "", slot: "product photo",     span: 3, ratio: "4 / 3",   note: "", tags: ["Sticker"] },
-  { title: "Piece seven", year: "2025", src: "", slot: "series photo",      span: 3, ratio: "4 / 3",   note: "", tags: ["Illustration", "In shop"] },
-  { title: "Piece eight", year: "2025", src: "", slot: "character sheet",   span: 3, ratio: "4 / 3",   note: "", tags: ["Commission"] },
-];
-
-// Work in progress. `dot` is the color of the status pill's indicator.
-export const UPCOMING = [
-  { title: "Prototype one",   status: "In progress",  dot: "#e0a35a", src: "", slot: "wip photo",     note: "", eta: "TBA", medium: "MIXED" },
-  { title: "Prototype two",   status: "Prototyping",  dot: "#7c9a5a", src: "", slot: "sketch / mock", note: "", eta: "TBA", medium: "DIGITAL" },
-  { title: "Prototype three", status: "Coming soon",  dot: "#bf2b58", src: "", slot: "concept art",   note: "", eta: "TBA", medium: "PRINT" },
-];
-
-// Where to find you in person. Once an event is over set past: true rather than
-// deleting it — the entry stays but dims and strikes through.
-export const EVENTS = [
-  { name: "Spring Art Market",  date: "Apr 12—13", year: "2026", place: "San Jose, CA",    detail: "", status: "Confirmed", past: false },
-  { name: "Maker's Fair",       date: "May 24",    year: "2026", place: "Portland, OR",    detail: "", status: "Confirmed", past: false },
-  { name: "Summer Con",         date: "Jul 2—5",   year: "2026", place: "Los Angeles, CA", detail: "", status: "Confirmed", past: false },
-  { name: "Winter Craft Show",  date: "Jan 18",    year: "2026", place: "Seattle, WA",     detail: "", status: "Past",      past: true },
-];
-
-// The About section. Leave `stats` empty and the row isn't rendered.
 export const ABOUT = {
-  slot: "studio / desk photo",
-  paragraphs: [
-    "Rinicake is an illustrator and art toy designer, and the creator of Dollypaca the Strawberry Alpaca.",
-    "Replace this paragraph with the longer version — how you work, what you make, and what you are after. Commissions and wholesale inquiries both go through the form below.",
-  ],
-  stats: [
-    // { n: "2018", label: "making since" },
-  ],
+  ...site.about,
+  image: resolveImage(site.about.image, "(max-width: 900px) 92vw, 32vw"),
 };
 
-// The /portfolio page. Same mosaic as WORK, plus a `cat` used by the filter.
-// Every `cat` must appear in CATEGORIES below or its pieces can't be reached.
-export const CATEGORIES = ["All", "Illustration", "Art toys", "Prints", "Stickers", "Commissions"];
+// --------------------------------------------------------------- collections
 
-export const PIECES = [
-  { title: "Piece one",      year: "2026", cat: "Illustration", medium: "Digital illustration",   src: "", slot: "series photo",    span: 3, ratio: "4 / 3" },
-  { title: "Piece two",      year: "2026", cat: "Art toys",     medium: "Resin, hand-painted",    src: "", slot: "figure photo",    span: 2, ratio: "3 / 4" },
-  { title: "Piece three",    year: "2026", cat: "Prints",       medium: "Giclée, A4",             src: "", slot: "print detail",    span: 1, ratio: "3 / 4" },
-  { title: "Piece four",     year: "2026", cat: "Art toys",     medium: "Soft vinyl prototype",   src: "", slot: "wide flatlay",    span: 4, ratio: "16 / 9" },
-  { title: "Piece five",     year: "2025", cat: "Stickers",     medium: "Die-cut vinyl sheet",    src: "", slot: "sticker flatlay", span: 2, ratio: "4 / 5" },
-  { title: "Piece six",      year: "2025", cat: "Illustration", medium: "Ink and digital colour", src: "", slot: "illustration",    span: 2, ratio: "4 / 3" },
-  { title: "Piece seven",    year: "2025", cat: "Commissions",  medium: "Character commission",   src: "", slot: "character sheet", span: 2, ratio: "4 / 3" },
-  { title: "Piece eight",    year: "2025", cat: "Prints",       medium: "Risograph, 2 colours",   src: "", slot: "print detail",    span: 2, ratio: "4 / 3" },
-  { title: "Piece nine",     year: "2024", cat: "Art toys",     medium: "Resin, limited run",     src: "", slot: "figure lineup",   span: 3, ratio: "16 / 10" },
-  { title: "Piece ten",      year: "2024", cat: "Illustration", medium: "Gouache on paper",       src: "", slot: "painting scan",   span: 3, ratio: "16 / 10" },
-  { title: "Piece eleven",   year: "2024", cat: "Stickers",     medium: "Holographic die-cut",    src: "", slot: "sticker photo",   span: 2, ratio: "1 / 1" },
-  { title: "Piece twelve",   year: "2023", cat: "Commissions",  medium: "Full-body illustration", src: "", slot: "commission scan", span: 2, ratio: "4 / 3" },
+export const WORK = collection(
+  import.meta.glob("../../content/work/*.json", { eager: true, import: "default" }),
+).map(resolvePiece);
+
+export const PIECES = collection(
+  import.meta.glob("../../content/pieces/*.json", { eager: true, import: "default" }),
+).map(resolvePiece);
+
+// Upcoming cards use a fixed 16/11 crop, so only the image needs resolving.
+export const UPCOMING = collection(
+  import.meta.glob("../../content/upcoming/*.json", { eager: true, import: "default" }),
+).map((item) => ({
+  ...item,
+  image: resolveImage(item.image, "(max-width: 560px) 100vw, (max-width: 900px) 50vw, 29vw"),
+}));
+
+// -------------------------------------------------------------------- events
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * Today as YYYY-MM-DD in the *viewer's* timezone. Comparing ISO date strings
+ * lexicographically gives correct ordering with no timezone arithmetic, and
+ * building the string from local parts avoids the UTC skew that
+ * `toISOString()` would introduce for anyone west of Greenwich.
+ */
+function today() {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+/** "2027-04-12" + "2027-04-13" -> "Apr 12—13"; across months -> "Apr 30 — May 2". */
+function formatRange(start, end) {
+  const [, sm, sd] = start.split("-");
+  const month = (m) => MONTHS[Number(m) - 1];
+  if (!end) return `${month(sm)} ${Number(sd)}`;
+  const [, em, ed] = end.split("-");
+  return sm === em
+    ? `${month(sm)} ${Number(sd)}—${Number(ed)}`
+    : `${month(sm)} ${Number(sd)} — ${month(em)} ${Number(ed)}`;
+}
+
+/**
+ * `past` is derived here rather than in a build script on purpose: this module
+ * is evaluated in the browser on every page load, so an event dims the day
+ * after it ends whether or not the site has been rebuilt since.
+ */
+const events = collection(
+  import.meta.glob("../../content/events/*.json", { eager: true, import: "default" }),
+).map((ev) => {
+  const past = (ev.end ?? ev.start) < today();
+  return {
+    ...ev,
+    past,
+    year: ev.start.slice(0, 4),
+    date: ev.displayDate || formatRange(ev.start, ev.end),
+    status: past ? "Past" : ev.status,
+  };
+});
+
+// Soonest first, with finished events collected at the end, most recent first.
+export const EVENTS = [
+  ...events.filter((e) => !e.past).sort((a, b) => a.start.localeCompare(b.start)),
+  ...events.filter((e) => e.past).sort((a, b) => b.start.localeCompare(a.start)),
 ];
