@@ -1,0 +1,249 @@
+# Sveltia CMS — the admin UI at /admin.
+#
+# It reads and writes the same JSON under content/ that you can edit by hand,
+# and commits straight to GitHub. The schema is Decap-compatible, so this file
+# still works if you ever swap Sveltia out for Decap.
+#
+# Run it locally with no auth setup at all:
+#   npx @sveltia/cms-proxy-server     (in one terminal)
+#   npm run dev                       (in another)
+#   open http://localhost:5173/admin/
+# `local_backend: true` below is what makes that work — it reads the working
+# tree directly instead of going through GitHub.
+
+backend:
+  name: github
+  repo: aignacio724/rinicake-site
+  # Must match the branch Cloudflare Pages deploys, or edits go live nowhere.
+  branch: main
+  # The Cloudflare Worker running sveltia-cms-auth. Netlify's hosted OAuth relay
+  # isn't available off Netlify, so this is the piece that needs deploying once.
+  # Until it exists, use the local backend above.
+  # base_url: https://YOUR-WORKER.workers.dev
+
+local_backend: true
+
+media_folder: public/images/originals
+public_folder: /images/originals
+
+# Uploads land beside the other originals; scripts/build-images.mjs picks them
+# up on the next build and derives ratio, srcsets and the blur placeholder.
+# The loader keys off the bare filename, so this path prefix is harmless.
+
+collections:
+  - name: work
+    label: Current work
+    label_singular: piece
+    description: The mosaic on the home page.
+    folder: content/work
+    create: true
+    format: json
+    extension: json
+    slug: "{{fields.order}}-{{slug}}"
+    identifier_field: title
+    sortable_fields: [order, year, title]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: year, label: Year, widget: string }
+      - name: order
+        label: Order
+        widget: number
+        value_type: int
+        hint: Lower numbers come first in the mosaic.
+      - name: image
+        label: Artwork
+        widget: image
+        required: false
+        hint: Leave empty to show a labelled placeholder instead.
+      - name: alt
+        label: Alt text
+        widget: string
+        required: false
+        hint: Describe the artwork for screen readers. Required once there's an image.
+      - name: slot
+        label: Placeholder label
+        widget: string
+        required: false
+        hint: Shown on the placeholder while there's no artwork.
+      - name: span
+        label: Span
+        widget: number
+        value_type: int
+        required: false
+        min: 1
+        max: 6
+        hint: Columns out of six. Leave empty to derive it from the image's shape.
+      - name: ratio
+        label: Ratio
+        widget: string
+        required: false
+        hint: Only needed without an image — e.g. "3 / 4". Derived from the file otherwise.
+      - { name: note, label: Note, widget: string, required: false }
+      - { name: tags, label: Tags, widget: list, required: false }
+
+  - name: pieces
+    label: Full portfolio
+    label_singular: piece
+    description: Everything, shown on /portfolio.
+    folder: content/pieces
+    create: true
+    format: json
+    extension: json
+    slug: "{{fields.order}}-{{slug}}"
+    identifier_field: title
+    sortable_fields: [order, year, title, cat]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: year, label: Year, widget: string }
+      - { name: order, label: Order, widget: number, value_type: int }
+      - name: cat
+        label: Category
+        widget: select
+        options: [Illustration, Art toys, Prints, Stickers, Commissions]
+        hint: Must also exist in Site settings → categories, or the filter can't reach it.
+      - { name: medium, label: Medium, widget: string, required: false }
+      - { name: image, label: Artwork, widget: image, required: false }
+      - { name: alt, label: Alt text, widget: string, required: false }
+      - { name: slot, label: Placeholder label, widget: string, required: false }
+      - { name: span, label: Span, widget: number, value_type: int, required: false, min: 1, max: 6 }
+      - { name: ratio, label: Ratio, widget: string, required: false }
+
+  - name: upcoming
+    label: Upcoming
+    label_singular: prototype
+    description: Work in progress.
+    folder: content/upcoming
+    create: true
+    format: json
+    extension: json
+    slug: "{{fields.order}}-{{slug}}"
+    identifier_field: title
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: order, label: Order, widget: number, value_type: int }
+      - name: status
+        label: Status
+        widget: select
+        options: [In progress, Prototyping, Coming soon]
+      - name: dot
+        label: Status colour
+        widget: string
+        hint: Hex colour of the dot in the status pill, e.g. #e0a35a.
+      - { name: image, label: Photo, widget: image, required: false }
+      - { name: alt, label: Alt text, widget: string, required: false }
+      - { name: slot, label: Placeholder label, widget: string, required: false }
+      - { name: note, label: Note, widget: string, required: false }
+      - { name: eta, label: ETA, widget: string, required: false }
+      - { name: medium, label: Medium, widget: string, required: false }
+
+  - name: events
+    label: Events
+    label_singular: event
+    description: Shows and conventions. Past ones dim automatically.
+    folder: content/events
+    create: true
+    format: json
+    extension: json
+    slug: "{{fields.start}}-{{slug}}"
+    identifier_field: name
+    sortable_fields: [start, name]
+    fields:
+      - { name: name, label: Name, widget: string }
+      - name: start
+        label: Start date
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+        picker_utc: true
+      - name: end
+        label: End date
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+        picker_utc: true
+        required: false
+        hint: Leave empty for a single-day event.
+      - name: displayDate
+        label: Display date override
+        widget: string
+        required: false
+        hint: Normally left empty — the date shown is formatted from the dates above.
+      - { name: place, label: City, ST, widget: string }
+      - { name: detail, label: Detail, widget: string, required: false }
+      - name: status
+        label: Status
+        widget: select
+        options: [Confirmed, Waitlisted, Applied]
+        hint: Automatically replaced with "Past" once the end date has gone by.
+
+  - name: site
+    label: Site settings
+    files:
+      - name: site
+        label: Site content
+        file: content/site.json
+        format: json
+        fields:
+          - name: creator
+            label: Creator
+            widget: object
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: tagline, label: Tagline, widget: string }
+              - { name: blurb, label: Blurb, widget: string }
+              - { name: etsyUrl, label: Etsy shop URL, widget: string }
+              - name: web3formsKey
+                label: Web3Forms access key
+                widget: string
+                hint: Public client-side key that backs the contact form.
+              - name: headline
+                label: Hero headline
+                widget: list
+                hint: One entry per rendered line.
+              - { name: lede, label: Hero lede, widget: text }
+              - { name: commissionsOpen, label: Show commissions pill, widget: boolean }
+              - { name: commissionsNote, label: Commissions pill text, widget: string }
+              - { name: image, label: Hero photo, widget: image, required: false }
+              - { name: imageAlt, label: Hero photo alt text, widget: string, required: false }
+          - name: socials
+            label: Social links
+            widget: list
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: href, label: URL, widget: string }
+              - name: icon
+                label: Icon
+                widget: select
+                options: [instagram, facebook, threads, tiktok]
+                hint: Adding a new icon needs an SVG in src/assets/icons and a line in content.js.
+          - name: nav
+            label: Nav links
+            widget: list
+            fields:
+              - name: id
+                label: Section id
+                widget: string
+                hint: Must match a section's id on the page, or the link scrolls nowhere.
+              - { name: label, label: Label, widget: string }
+          - { name: contactTopics, label: Contact form topics, widget: list }
+          - { name: contactNotes, label: Contact notes, widget: list }
+          - name: categories
+            label: Portfolio categories
+            widget: list
+            hint: Keep "All" first.
+          - name: about
+            label: About
+            widget: object
+            fields:
+              - { name: slot, label: Placeholder label, widget: string, required: false }
+              - { name: image, label: Photo, widget: image, required: false }
+              - { name: alt, label: Alt text, widget: string, required: false }
+              - { name: paragraphs, label: Paragraphs, widget: list }
+              - name: stats
+                label: Stats
+                widget: list
+                required: false
+                hint: Leave empty and the stats row isn't rendered.
+                fields:
+                  - { name: n, label: Figure, widget: string }
+                  - { name: label, label: Label, widget: string }

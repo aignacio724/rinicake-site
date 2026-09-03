@@ -1,0 +1,4 @@
+# /portfolio is a client-side route: without this, a direct visit or a refresh
+# on it returns 404 because no such file exists on disk. Serve index.html for
+# anything that isn't a real asset and let the router take it from there.
+/*  /index.html  200

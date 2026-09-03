@@ -25,7 +25,7 @@ export default function WorkGrid() {
             className="group rounded-card bg-panel px-3.5 pt-3.5 pb-5 shadow-card transition duration-200 hover:-translate-y-1.5 hover:shadow-lift"
             style={{ gridColumn: `span ${w.span}` }}
           >
-            <Tile src={w.src} label={w.slot} ratio={w.ratio} />
+            <Tile image={w.image} alt={w.alt} label={w.slot} ratio={w.ratio} />
 
             <div className="mt-[15px] flex items-baseline justify-between gap-3.5 px-1">
               <h3 className="font-display text-lg font-bold">{w.title}</h3>
